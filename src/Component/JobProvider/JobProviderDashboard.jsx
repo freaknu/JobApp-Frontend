@@ -41,7 +41,7 @@ const JobProviderDashboard = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `${backendURL}/jobprovider/myjobs`,
+       `${backendURL}/jobprovider/myjobs`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
