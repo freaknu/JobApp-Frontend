@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import JobList from "./JobList";
+import JobList from "../JobProvider/JobLIst";
 import AddJobForm from "./AddForm";
 import ApplicantsList from "./ApplicantsList";
 import DashboardHeader from "./DashboardHeader";
