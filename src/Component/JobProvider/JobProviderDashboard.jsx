@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import JobList from "./JobLIst";
+import JobList from "./JobList";
 import AddJobForm from "./AddForm";
 import ApplicantsList from "./ApplicantsList";
 import DashboardHeader from "./DashboardHeader";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const JobProviderDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,22 +20,28 @@ const JobProviderDashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [applicants, setApplicants] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [loadingApplicants, setLoadingApplicants] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const token = localStorage.getItem("authToken");
     if (!token) {
       navigate("/login");
       return;
     }
-    fetchJobs();
+    if (isMounted) fetchJobs();
+
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   const fetchJobs = async () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `{backendURL}/jobprovider/myjobs`,
+        `${backendURL}/jobprovider/myjobs`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,6 +58,7 @@ const JobProviderDashboard = () => {
   };
 
   const fetchApplicants = async (id) => {
+    setLoadingApplicants(true);
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
@@ -66,6 +74,8 @@ const JobProviderDashboard = () => {
       setSelectedJob(id);
     } catch (err) {
       handleError(err);
+    } finally {
+      setLoadingApplicants(false);
     }
   };
 
@@ -165,6 +175,15 @@ const JobProviderDashboard = () => {
     }
   };
 
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+    setNewJob({
+      jobname: "",
+      jobdescription: "",
+      technology: "",
+    });
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/login");
@@ -185,6 +204,7 @@ const JobProviderDashboard = () => {
           title="Job Provider Dashboard"
           onLogout={handleLogout}
           error={error}
+          onClearError={() => setError("")}
         />
 
         <div className="flex justify-between items-center mb-6">
@@ -202,6 +222,7 @@ const JobProviderDashboard = () => {
             newJob={newJob}
             onInputChange={handleInputChange}
             onSubmit={handleAddJob}
+            onCancel={handleCancelAdd}
           />
         )}
 
@@ -226,7 +247,11 @@ const JobProviderDashboard = () => {
             applicants={applicants}
             selectedJob={selectedJob}
             jobs={jobs}
-            onClose={() => setSelectedJob(null)}
+            loading={loadingApplicants}
+            onClose={() => {
+              setSelectedJob(null);
+              setApplicants([]);
+            }}
           />
         )}
       </div>
