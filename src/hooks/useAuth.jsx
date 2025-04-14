@@ -1,24 +1,53 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export const useAuth = () => {
-  const [userRole, setUserRole] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState({
+    user: null,
+    isLoading: true,
+  });
 
   useEffect(() => {
     const verifyAuth = () => {
       const token = localStorage.getItem("authToken");
-      const storedRole = localStorage.getItem("userRole");
+      const role = localStorage.getItem("userRole");
 
-      if (!token) {
-        setIsLoading(false);
-        return;
+      if (token && role) {
+        setAuthState({
+          user: { role },
+          isLoading: false,
+        });
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      } else {
+        setAuthState({
+          user: null,
+          isLoading: false,
+        });
       }
-      setUserRole(storedRole || null);
-      setIsLoading(false);
     };
+    window.addEventListener("storage", verifyAuth);
 
     verifyAuth();
+
+    return () => {
+      window.removeEventListener("storage", verifyAuth);
+    };
   }, []);
 
-  return { userRole, isLoading };
+  const logout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
+    delete axios.defaults.headers.common["Authorization"];
+    setAuthState({
+      user: null,
+      isLoading: false,
+    });
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  return {
+    userRole: authState.user?.role,
+    isLoading: authState.isLoading,
+    logout,
+  };
 };

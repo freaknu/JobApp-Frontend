@@ -62,7 +62,7 @@ const JobCard = ({ job, handleOpenModal, formatDate }) => {
         <div className="flex justify-end mt-4">
           <button
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-            onClick={() => handleOpenModal(job.id)}
+            onClick={() => handleOpenModal(job.jobid)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

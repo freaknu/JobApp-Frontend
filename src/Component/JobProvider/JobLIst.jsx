@@ -13,14 +13,22 @@ const JobList = ({
   onFetchApplicants,
   onEditJob,
   onDeleteJob,
+  loading,
 }) => {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {jobs.length > 0 ? (
+      {loading ? (
+        <div className="col-span-3 text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600">Loading jobs...</p>
+        </div>
+      ) : jobs.length > 0 ? (
         jobs.map((job) => (
           <div
             key={job.jobid}
-            className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+            className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 ${
+              selectedJob === job.jobid ? "ring-2 ring-blue-500" : ""
+            }`}
           >
             <div className="p-6">
               <div className="flex justify-between items-start mb-3">
@@ -67,7 +75,7 @@ const JobList = ({
 
               <div className="flex justify-between items-center mt-6">
                 <button
-                  onClick={() => onFetchApplicants(job.id)}
+                  onClick={() => onFetchApplicants(job)}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm transition-colors ${
                     selectedJob === job.jobid
                       ? "bg-blue-500 text-white"
@@ -112,7 +120,7 @@ const JobList = ({
                     Edit
                   </button>
                   <button
-                    onClick={() => onDeleteJob(job.id)}
+                    onClick={() => onDeleteJob(job.jobid)}
                     className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
                   >
                     <svg
